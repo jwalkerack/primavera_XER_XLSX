@@ -26,7 +26,7 @@ def Generate_List_Of_XER_Strings(TableIndexDict,FileString):
         S = TableIndexDict[T]['StartRow']
         E = TableIndexDict[T]['EndRow']
         Rows = []
-        for i in range(S,E):
+        for i in range(S,E+1):
             GETROW = f"{FileString[i]}\n"
             Rows.append(GETROW)
         StringDict[T] = Rows
@@ -76,15 +76,19 @@ def get_table_names_from_excel(uploaded_excel):
 
 
 
-def Generate_Dict_Of_Excel_Strings(uploaded_excel,Table_Name):
+import io
+from openpyxl import load_workbook
+
+def Generate_Dict_Of_Excel_Strings(uploaded_excel, Table_Name):
     excelDict = {}
 
-    # Read the file as bytes (this is where the issue was earlier)
+    # Read the file as bytes
     bytes_data = uploaded_excel.read()  # Read file content into bytes
-    # Create a file-like object from the bytes data (this is what we need)
+    # Create a file-like object from the bytes data
     file_stream = io.BytesIO(bytes_data)  # Convert bytes into a file-like object
-    # Now we can load the workbook from the file-like object
+    # Load the workbook from the file-like object
     workbook = load_workbook(file_stream)
+
     # Access the specific sheet
     Data = []
     if Table_Name in workbook.sheetnames:
@@ -100,8 +104,8 @@ def Generate_Dict_Of_Excel_Strings(uploaded_excel,Table_Name):
             else:
                 RowID = "%T"
 
-            # Create a tab-delimited string for each row
-            tab_delimited_string = "\t".join(map(str, row))  # Convert values to strings
+            # Replace None with an empty string and join the row values
+            tab_delimited_string = "\t".join("" if cell is None else str(cell) for cell in row)
             updated_tab_string = f"{RowID}\t{tab_delimited_string}\n"
             Data.append(updated_tab_string)
             rowCount += 1
@@ -256,16 +260,20 @@ def excel_to_xer():
         if xer_fileX and excel_fileX:
             try:
                 # Attempt to read the XER file
-                st.write("Reading XER file...")
+                #st.write("Reading XER file...")
                 lines = read_file(xer_fileX)  # Reading the XER file
-                st.write("Generating List index...")
+
+                E
+                #st.write("Generating List index...")
                 gen_list = Generate_List_index(lines)  # Generating list index from XER data
-                st.write("Generating Dictionary index...")
+                #st.write("Generating Dictionary index...")
                 gen_dict = Generate_dict_index(gen_list)  # Creating a dictionary index
-                st.write("Generating Table Named Dict...")
+                #st.write("Generating Table Named Dict...")
                 table_dict = Generate_Table_Named_Dict(gen_dict, lines)  # Creating table dictionary
                 SD = Generate_List_Of_XER_Strings(table_dict, lines)
+                #st.write(SD)
                 ED = Generate_Dict_Of_Excel_Strings(excel_fileX , sheet_name)
+                #st.write(ED)
                 YourHeader = Header_Ender(lines)
                 content = create_new_xer_content(SD, ED,YourHeader)
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
