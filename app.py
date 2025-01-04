@@ -262,8 +262,6 @@ def excel_to_xer():
                 # Attempt to read the XER file
                 #st.write("Reading XER file...")
                 lines = read_file(xer_fileX)  # Reading the XER file
-
-                E
                 #st.write("Generating List index...")
                 gen_list = Generate_List_index(lines)  # Generating list index from XER data
                 #st.write("Generating Dictionary index...")
